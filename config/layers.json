@@ -1,0 +1,67 @@
+{
+  "_header": "draft — owner: Platform Operator, Juan (jsm747). One writer per knowledge layer (R12) and what supervises the agents (R10). A pull request's role is its branch prefix agent/<role>/…; any other branch is a person's (human). Read by the layer-check; the check cannot be changed by an agent branch because .github/ and config/ are supervision paths.",
+  "supervision_paths": [
+    ".github/",
+    "config/",
+    "scripts/",
+    "protocol/",
+    "registry/",
+    "checks/",
+    "platform/",
+    "framework/"
+  ],
+  "layers": {
+    "instance-normative": {
+      "paths": [
+        "instances/*/spec/",
+        "instances/*/decision-records/",
+        "instances/*/definition/",
+        "instances/*/annexes/"
+      ],
+      "writers": [
+        "architect",
+        "builder",
+        "human"
+      ]
+    },
+    "instance-skills": {
+      "paths": [
+        "instances/*/skills/"
+      ],
+      "writers": [
+        "architect",
+        "executor",
+        "process-reviewer",
+        "human"
+      ],
+      "process-reviewer": "learning sections only"
+    },
+    "instance-deliverables": {
+      "paths": [
+        "instances/*/deliverables/"
+      ],
+      "writers": [
+        "executor",
+        "human"
+      ]
+    },
+    "instance-drafts": {
+      "paths": [
+        "instances/*/drafts/"
+      ],
+      "writers": [
+        "distiller"
+      ]
+    },
+    "instance-ops": {
+      "paths": [
+        "instances/*/ops/"
+      ],
+      "writers": [
+        "auditor",
+        "process-reviewer",
+        "human"
+      ]
+    }
+  }
+}

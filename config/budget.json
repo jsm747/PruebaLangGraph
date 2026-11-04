@@ -1,0 +1,13 @@
+{
+  "_header": "draft — owner: Platform Operator, Juan (jsm747). Pilot: single cap (R17 relaxed, phase 0). Amounts are derived from tokens and config/price-table.json; under the subscription they are notional, not billed. Period cap set to 15 USD by enterprise policy v1 P2 (Juan, 2026-10-29).",
+  "period": "month",
+  "period_cap_usd": 15.0,
+  "session_caps": {
+    "default": {
+      "max_turns": 30,
+      "max_budget_usd": 1.0,
+      "wall_time_s": 900
+    }
+  },
+  "on_exhaustion": "no new arms in the instance; in-flight sessions finish; fact budget:exhausted:period written; Platform Operator notified"
+}

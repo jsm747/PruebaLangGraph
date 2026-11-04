@@ -1,0 +1,16 @@
+{
+  "_header": "draft — owner: Platform Operator, Juan (jsm747). Model tier per role (R9). Override without redeploy: repository variable APF_MODEL_<ROLE> (set by the operator in Settings → Variables), else config/overrides.json. Tool allowlists per role (R10).",
+  "roles": {
+    "builder":   {"tier": "strong", "model": "claude-opus-5-5",   "fallback": "claude-sonnet-5-5", "tools": "Read,Glob,Grep"},
+    "architect": {"tier": "strong", "model": "claude-opus-5-5",   "fallback": "claude-sonnet-5-5", "tools": "Read,Glob,Grep"},
+    "critic":    {"tier": "strong", "model": "claude-opus-5-5",   "fallback": "claude-sonnet-5-5", "tools": "Read,Glob,Grep"},
+    "reviewer":  {"tier": "strong", "model": "claude-opus-5-5",   "fallback": "claude-sonnet-5-5", "tools": "Read,Glob,Grep"},
+    "auditor":   {"tier": "strong", "model": "claude-opus-5-5",   "fallback": "claude-sonnet-5-5", "tools": "Read,Glob,Grep"},
+    "executor":  {"tier": "cheapest that passes", "model": "claude-sonnet-5-5", "fallback": "claude-haiku-5-5", "tools": "Read,Glob,Grep,Edit,Write"},
+    "distiller": {"tier": "by corpus", "model": "claude-sonnet-5-5", "fallback": "claude-haiku-5-5", "tools": "Read,Glob,Grep"},
+    "process-assistant": {"tier": "cheap", "model": "claude-haiku-5-5", "fallback": "claude-sonnet-5-5", "tools": "Read"},
+    "test-cheap":    {"tier": "cheap", "model": "claude-haiku-5-5", "fallback": "claude-sonnet-5-5", "tools": "Read"},
+    "test-override": {"tier": "cheap", "model": "claude-haiku-5-5", "fallback": "claude-sonnet-5-5", "tools": "Read"},
+    "test-fallback": {"tier": "cheap", "model": "claude-retired-model-for-r9-test", "fallback": "claude-haiku-5-5", "tools": "Read"}
+  }
+}

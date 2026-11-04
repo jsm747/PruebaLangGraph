@@ -1,0 +1,102 @@
+{
+  "_header": "enterprise registry, instances (I.17) — enforcement view read by the orchestrator. draft — owner: Platform Operator, Juan (jsm747).",
+  "platform-readiness": {
+    "status": "readiness-test",
+    "purpose": "acceptance tests of the substrate contract (synthetic)",
+    "owner": "jsm747",
+    "pilot_end": "2027-01-31",
+    "next_review": "2027-01-31"
+  },
+  "platform-lapsed": {
+    "status": "readiness-test",
+    "purpose": "R21 test: an instance whose review date has passed (synthetic)",
+    "owner": "jsm747",
+    "pilot_end": "2027-01-31",
+    "next_review": "2026-10-01"
+  },
+  "readiness-test": {
+    "status": "readiness-test",
+    "purpose": "phase 9 dry run and R11 tests: a real role session on a small item (synthetic)",
+    "owner": "jsm747",
+    "pilot_end": "2027-01-31",
+    "next_review": "2027-01-31"
+  },
+  "ai-act-definicion": {
+    "status": "proposed",
+    "name": "Definición del proceso de validación de casos de uso de IA frente al AI Act",
+    "purpose": "project whose deliverable is the AI Act use-case validation process (definition, question bank, service plan draft, tests); synthetic data",
+    "shape": "project · entry level UNKNOWN (step 2) · current UNKNOWN",
+    "launch_profile": "pilot (end 2027-01-31; deferred items and signature: UNKNOWN until Builder step 1b)",
+    "owner": "jsm747",
+    "sponsor": "jsm747",
+    "risk_and_control_contact": "jsm747",
+    "pilot_end": "2027-01-31",
+    "next_review": "2027-01-31",
+    "registered": "2026-10-31",
+    "launched": null,
+    "last_review": null,
+    "framework_version": {
+      "built": "0.4.1",
+      "current": "0.4.1"
+    },
+    "enterprise_policy_version": "v1, check pending (Builder step 1)",
+    "external_effects": "none (policy F2)",
+    "data_classes": "synthetic only (policy F3); information map pending (step 6)",
+    "risk_legal": "UNKNOWN",
+    "budget": "15 USD/month notional (policy P2) · spend to date 0",
+    "indicators": null,
+    "incidents": [],
+    "path": "complex process — this project defines ai-act-validacion (AR-001)",
+    "dependencies": {
+      "defines": [
+        "ai-act-validacion"
+      ]
+    },
+    "viability_outcome": "UNKNOWN"
+  },
+  "ai-act-validacion": {
+    "status": "proposed",
+    "name": "Validación de casos de uso de IA frente al AI Act",
+    "purpose": "validation of AI use cases against the EU AI Act (synthetic cases); born at the closure of ai-act-definicion",
+    "shape": "process · ceiling L0 (pilot profile forced)",
+    "launch_profile": "pilot (end 2027-01-31)",
+    "owner": "jsm747",
+    "sponsor": "jsm747",
+    "risk_and_control_contact": "jsm747",
+    "pilot_end": "2027-01-31",
+    "next_review": "2027-01-31",
+    "registered": "2026-10-31",
+    "launched": null,
+    "last_review": null,
+    "framework_version": {
+      "built": "0.4.1",
+      "current": "0.4.1"
+    },
+    "enterprise_policy_version": "v1, check pending (at the closure of ai-act-definicion)",
+    "external_effects": "none (policy F2)",
+    "data_classes": "synthetic only (policy F3)",
+    "risk_legal": "UNKNOWN",
+    "budget": "15 USD/month notional (policy P2) · spend to date 0",
+    "indicators": null,
+    "incidents": [],
+    "path": "complex process — defined-by ai-act-definicion",
+    "dependencies": {
+      "defined_by": "ai-act-definicion"
+    },
+    "viability_outcome": "UNKNOWN"
+  },
+  "_change_log": [
+    {
+      "date": "2026-10-31",
+      "entry": "ai-act-definicion",
+      "change": "created → proposed",
+      "by": "Builder (session of jsm747), Builder step 0"
+    },
+    {
+      "date": "2026-10-31",
+      "entry": "ai-act-validacion",
+      "change": "created → proposed",
+      "by": "Builder (session of jsm747), Builder step 0"
+    }
+  ]
+}

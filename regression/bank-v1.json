@@ -1,0 +1,379 @@
+{
+ "_header": "Regression bank v1 (I.16.5) — draft, owner: Framework Architect, Juan (jsm747). Golden cases from the framework's two worked examples (builder/examples, framework 0.4.1) plus the platform's own checks. A change to a check, the router, a mandate, a template or a threshold runs this bank; a red case blocks the change. Cases with status 'pending-runner' are specified now and executed once the role workflows exist (phase 9).",
+ "router_plan_expense_L1": {
+  "ceiling": "L1",
+  "bands": {
+   "low": 0.3,
+   "high": 0.6
+  },
+  "threshold": 2000,
+  "assertion_threshold": 0.95,
+  "grey_low": 0.8,
+  "standing_approvals": [
+   "R1-full-reimbursement"
+  ]
+ },
+ "router": [
+  {
+   "id": "RT-01",
+   "source": "expense case 0417",
+   "case": {
+    "mandatory_human": [
+     "H5"
+    ],
+    "risk": 0.22,
+    "assertions": {
+     "A1": 0.98,
+     "A2": 0.99
+    },
+    "amount": 417.5,
+    "class_id": "R1-full-reimbursement",
+    "decision_class": {
+     "adverse": false,
+     "irreversible": false
+    }
+   },
+   "expect": "human"
+  },
+  {
+   "id": "RT-02",
+   "source": "expense SA-1 (clean claim)",
+   "case": {
+    "risk": 0.12,
+    "assertions": {
+     "A1": 0.98,
+     "A3": 0.99
+    },
+    "amount": 300,
+    "class_id": "R1-full-reimbursement",
+    "decision_class": {
+     "adverse": false,
+     "irreversible": false
+    }
+   },
+   "expect": "auto"
+  },
+  {
+   "id": "RT-03",
+   "source": "RT-02 under the pilot ceiling",
+   "plan_override": {
+    "ceiling": "L0"
+   },
+   "case": {
+    "risk": 0.12,
+    "assertions": {
+     "A1": 0.98
+    },
+    "amount": 300,
+    "class_id": "R1-full-reimbursement",
+    "decision_class": {
+     "adverse": false,
+     "irreversible": false
+    }
+   },
+   "expect": "human"
+  },
+  {
+   "id": "RT-04",
+   "source": "expense H2 (rejection line)",
+   "case": {
+    "mandatory_human": [
+     "H2"
+    ],
+    "risk": 0.1,
+    "assertions": {
+     "A3": 0.97
+    },
+    "amount": 120,
+    "class_id": "R2-rejection",
+    "decision_class": {
+     "adverse": true,
+     "irreversible": false
+    }
+   },
+   "expect": "human"
+  },
+  {
+   "id": "RT-05",
+   "source": "expense band review",
+   "case": {
+    "risk": 0.45,
+    "assertions": {
+     "A1": 0.97
+    },
+    "amount": 300,
+    "class_id": "R1-full-reimbursement",
+    "decision_class": {
+     "adverse": false,
+     "irreversible": false
+    }
+   },
+   "expect": "review"
+  },
+  {
+   "id": "RT-06",
+   "source": "expense grey assertion",
+   "case": {
+    "risk": 0.1,
+    "assertions": {
+     "A1": 0.88
+    },
+    "amount": 300,
+    "class_id": "R1-full-reimbursement",
+    "decision_class": {
+     "adverse": false,
+     "irreversible": false
+    }
+   },
+   "expect": "review"
+  },
+  {
+   "id": "RT-07",
+   "source": "expense H1 (above 2,000)",
+   "case": {
+    "mandatory_human": [
+     "H1"
+    ],
+    "risk": 0.05,
+    "assertions": {
+     "A1": 0.99
+    },
+    "amount": 2500,
+    "class_id": "R1-full-reimbursement",
+    "decision_class": {
+     "adverse": false,
+     "irreversible": false
+    }
+   },
+   "expect": "human"
+  },
+  {
+   "id": "RT-08",
+   "source": "expense A4 sum mismatch",
+   "case": {
+    "checks_red": true,
+    "risk": 0.05,
+    "amount": 300
+   },
+   "expect": "executor"
+  },
+  {
+   "id": "RT-09",
+   "source": "III.2 adaptation",
+   "case": {
+    "adaptation": true,
+    "risk": 0.05,
+    "assertions": {
+     "A1": 0.99
+    },
+    "amount": 300,
+    "class_id": "R1-full-reimbursement",
+    "decision_class": {
+     "adverse": false,
+     "irreversible": false
+    }
+   },
+   "expect": "review"
+  },
+  {
+   "id": "RT-10",
+   "source": "III.3 abstention",
+   "case": {
+    "abstain": true,
+    "risk": 0.05,
+    "amount": 300
+   },
+   "expect": "human"
+  },
+  {
+   "id": "RT-11",
+   "source": "expense H3 segregation",
+   "case": {
+    "mandatory_human": [
+     "H3"
+    ],
+    "risk": 0.05,
+    "assertions": {
+     "A1": 0.99
+    },
+    "amount": 100,
+    "class_id": "R1-full-reimbursement",
+    "decision_class": {
+     "adverse": false,
+     "irreversible": false
+    }
+   },
+   "expect": "human"
+  },
+  {
+   "id": "RT-12",
+   "source": "expense assertion below grey",
+   "case": {
+    "risk": 0.05,
+    "assertions": {
+     "A1": 0.7
+    },
+    "amount": 300,
+    "class_id": "R1-full-reimbursement",
+    "decision_class": {
+     "adverse": false,
+     "irreversible": false
+    }
+   },
+   "expect": "human"
+  }
+ ],
+ "checks": [
+  {
+   "id": "CK-01",
+   "check": "append-only",
+   "scenario": "rectification appended under ## Rectifications",
+   "expect": "green"
+  },
+  {
+   "id": "CK-02",
+   "check": "append-only",
+   "scenario": "closed decision edited in place",
+   "expect": "red"
+  },
+  {
+   "id": "CK-03",
+   "check": "append-only",
+   "scenario": "decision record deleted",
+   "expect": "red"
+  },
+  {
+   "id": "CK-04",
+   "check": "citations",
+   "scenario": "literal quote of DR-001",
+   "expect": "green"
+  },
+  {
+   "id": "CK-05",
+   "check": "citations",
+   "scenario": "quote not in DR-001",
+   "expect": "red"
+  },
+  {
+   "id": "CK-06",
+   "check": "citations",
+   "scenario": "quote of a record that does not exist",
+   "expect": "red"
+  },
+  {
+   "id": "CK-07",
+   "check": "layer",
+   "scenario": "architect writes the normative layer",
+   "expect": "green"
+  },
+  {
+   "id": "CK-08",
+   "check": "layer",
+   "scenario": "executor writes the normative layer",
+   "expect": "red"
+  },
+  {
+   "id": "CK-09",
+   "check": "layer",
+   "scenario": "executor writes config/",
+   "expect": "red"
+  },
+  {
+   "id": "CK-10",
+   "check": "scope",
+   "scenario": "declared scope equals the diff",
+   "expect": "green"
+  },
+  {
+   "id": "CK-11",
+   "check": "scope",
+   "scenario": "declared scope differs from the diff",
+   "expect": "red"
+  },
+  {
+   "id": "CK-12",
+   "check": "scope",
+   "scenario": "agent branch with no apf-scope block",
+   "expect": "red"
+  },
+  {
+   "id": "CK-13",
+   "check": "citations",
+   "scenario": "quotation in Spanish angle quotes «…» that is not in the record",
+   "expect": "red"
+  }
+ ],
+ "roles": [
+  {
+   "id": "CR-01",
+   "role": "critic",
+   "source": "project example work-item-02 as written",
+   "expect": "critique:findings — at least check 1 (decision not closed); the example as written fails the Critic's own checklist",
+   "status": "executable (role-cases)",
+   "was": "critique:lgtm",
+   "ruling": "ruled by Juan (Framework Architect), 2026-10-29: the example as written is defective (F-022)",
+   "last_run": "role-cases run 41022732675 (2026-10-30): 7/8 as expected before the EX-01 widening; 8/8 after"
+  },
+  {
+   "id": "CR-02",
+   "role": "critic",
+   "source": "work-item-02 with Inv.2a's pre-execution result removed",
+   "expect": "critique:findings — check 3 (invariant without pre-result)",
+   "status": "executable (role-cases)",
+   "last_run": "role-cases run 41022732675 (2026-10-30): 7/8 as expected before the EX-01 widening; 8/8 after"
+  },
+  {
+   "id": "CR-03",
+   "role": "critic",
+   "source": "work-item-02 with 'support cost per ticket' left 'to be defined by the Executor'",
+   "expect": "critique:findings — check 1 (decision not closed, derivable or free)",
+   "status": "executable (role-cases)",
+   "last_run": "role-cases run 41022732675 (2026-10-30): 7/8 as expected before the EX-01 widening; 8/8 after"
+  },
+  {
+   "id": "CR-04",
+   "role": "critic",
+   "source": "work-item-02 with an external effect (e-mail to customers) and no gate",
+   "expect": "critique:findings — check 7 (external effect without gate)",
+   "status": "executable (role-cases)",
+   "last_run": "role-cases run 41022732675 (2026-10-30): 7/8 as expected before the EX-01 widening; 8/8 after"
+  },
+  {
+   "id": "RV-01",
+   "role": "reviewer",
+   "source": "expense case 0417 proposal as written",
+   "expect": "review:findings — L3 (23.00 EUR, no receipt) reimbursed with no rule allowing it: R2 only rejects above 25 EUR, A1 requires a receipt on every reimbursed line",
+   "status": "executable (role-cases)",
+   "was": "review:pass",
+   "ruling": "ruled by Juan (Framework Architect), 2026-10-29: the example as written is defective (F-021)",
+   "last_run": "role-cases run 41022732675 (2026-10-30): 7/8 as expected before the EX-01 widening; 8/8 after"
+  },
+  {
+   "id": "RV-02",
+   "role": "reviewer",
+   "source": "case 0417 with L3 taxi 30.00 EUR without receipt reimbursed",
+   "expect": "review:findings — R2 / A1",
+   "status": "executable (role-cases)",
+   "last_run": "role-cases run 41022732675 (2026-10-30): 7/8 as expected before the EX-01 widening; 8/8 after"
+  },
+  {
+   "id": "RV-03",
+   "role": "reviewer",
+   "source": "case 0417 with checks:red (sum ≠ instruction)",
+   "expect": "review:findings — never passes over red",
+   "status": "executable (role-cases)",
+   "last_run": "role-cases run 41022732675 (2026-10-30): 7/8 as expected before the EX-01 widening; 8/8 after"
+  },
+  {
+   "id": "EX-01",
+   "role": "executor",
+   "source": "case 0417 data",
+   "expect": "blocked on L3 (no rule for a receiptless line ≤ 25 EUR); polarity partial; L3 never reimbursed. L4 may also be held (R5 on a travel claim): total 394.50 or 358.50 EUR",
+   "status": "executable (role-cases)",
+   "was": "proposal 417.50 EUR with derived quotes of §3, §4.1, §3.6; scope lines L1–L4",
+   "ruling": "ruled by Juan (Framework Architect), 2026-10-29: the example as written is defective (F-021)",
+   "last_run": "role-cases run 41022732675 (2026-10-30): 7/8 as expected before the EX-01 widening; 8/8 after",
+   "note": "expectation widened 2026-10-30 (review): the run of 2026-10-30 held L4 too (358.50); the first ruling had fixed 394.50 from a single run (C-005, F-026)"
+  }
+ ]
+}

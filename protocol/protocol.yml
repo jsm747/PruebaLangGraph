@@ -1,0 +1,46 @@
+# Protocol of the platform's orchestrator (readiness skeleton).
+# draft — owner: Platform Operator, Juan (jsm747) · produced by the Readiness Agent
+# Append-only: a state, fact or signal is never renamed, only added or retired with a date.
+# Exported state machine (R3). Instances extend it through their own protocol.
+
+version: 1
+item_label: "apf:item"
+control_label: "apf:control"       # the control issue carries instance-wide signals (pause)
+
+states:                            # one state:* label per item
+  queued:     {turn: none,        writer: [human, mechanism]}
+  armed:      {turn: executor,    writer: [human, mechanism]}   # a human arms the first item after the owner's go
+  executing:  {turn: executor,    writer: [mechanism]}
+  amendment-pending: {turn: executor, writer: [mechanism]}
+  proposed:   {turn: mechanisms,  writer: [mechanism]}
+  integrated: {turn: none,        writer: [mechanism], terminal: true}
+  blocked:    {turn: human,       writer: [mechanism], terminal: true}   # top of ladder stops the item, not the series
+
+facts:                             # fact:* labels; sole writer
+  arm-refused:            mechanism
+  relaunched:             mechanism
+  amendment-acknowledged: mechanism
+  budget-exhausted:       mechanism
+  checks-green:           mechanism
+  checks-red:             mechanism
+
+human_only_prefixes: ["approval:", "ruling:", "signal:"]   # written only by a human identity, never through an agent app
+agent_apps: ["claude"]             # GitHub Apps through which agents write; a human-only fact via these is refused
+
+signals:
+  pause:  {who: [process-owner, platform-operator], on: control issue, effect: "no new arms; in-flight work finishes"}
+  amend:  {who: [any member], on: item, effect: "delivered at the close of the current turn; integration blocked until acknowledged"}
+
+caps:
+  relaunches_per_item: 2           # liveness cap (not a budget)
+
+transitions:                       # turn → what the step does
+  armed:             "arm checks (schema, registry, budget, pause, double arm) → executing → executor session → proposed | blocked"
+  amendment-pending: "executor acknowledges the amendment → executing again"
+  proposed:          "checks → integrated (gate none for platform test items) → arm next in series"
+
+interpretations:                   # the team's reading where the framework is ambiguous
+  double_arm: >-
+    2026-10-28, Juan (F-014): a second item armed in a busy series is queued behind the
+    active one (fact: none; comment orchestrator:arm-held) and woken when the series frees.
+    It is never refused and never runs alongside. The same item triggered twice runs once.

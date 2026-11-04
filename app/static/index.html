@@ -8,10 +8,14 @@
 <body>
   <header class="topbar"><div class="brand"><span class="mark">A</span><span>APF <small> / ESPACIO DE TRABAJO</small></span></div><span class="pill">● &nbsp; Prototipo local</span></header>
   <main>
-    <section class="intro"><div><div class="eyebrow">FLUJO DE TRABAJO · PILOTO</div><h1>De la tarea a la decisión<span>.</span></h1><p>Prepara una propuesta y revísala antes de incorporarla.</p></div><div class="notice"><b>✳ &nbsp; Entorno de prueba</b><br>El ejecutor está simulado. Utiliza datos sintéticos.</div></section>
+    <section class="intro"><div><div class="eyebrow">FLUJO DE TRABAJO · PILOTO</div><h1>De la tarea a la decisión<span>.</span></h1><p>Prepara una propuesta y revísala antes de incorporarla.</p></div><div class="notice"><b>✳ &nbsp; Entorno de prueba</b><br><span id="executor-label">Comprobando ejecutor...</span> Utiliza datos sintéticos.</div></section>
+    <div class="toolbar"><span id="control-status">Comprobando estado...</span><button id="control" class="secondary" type="button">Pausar nuevas ejecuciones</button></div>
     <div class="layout">
-      <section class="card"><div class="card-head"><div><span class="step">01 / NUEVA TAREA</span><h2>¿En qué trabajamos?</h2><p>Describe un objetivo concreto para preparar una propuesta.</p></div><span class="icon">✳</span></div>
-        <form id="create"><label for="title">Título</label><input id="title" maxlength="120" placeholder="Ej. Preparar una evaluación inicial" required><label for="description">Descripción</label><textarea id="description" maxlength="3000" placeholder="Describe brevemente lo que necesitas..." required></textarea><button type="submit">Crear propuesta <span>↗</span></button></form>
+      <section class="card"><div class="card-head"><div><span class="step">01 / NUEVA TAREA</span><h2>¿En qué trabajamos?</h2><p>Describe el contrato de una tarea para el ejecutor.</p></div><span class="icon">✳</span></div>
+        <form id="create"><label for="title">Título</label><input id="title" maxlength="120" placeholder="Ej. Preparar una evaluación inicial" required><label for="description">Contrato</label><textarea id="description" maxlength="3000" placeholder="Describe lo que se necesita..." required></textarea>
+        <label for="criteria">Criterios de aceptación <span class="hint">uno por línea</span></label><textarea id="criteria" placeholder="Preparar un borrador para revisión humana" rows="3"></textarea>
+        <details><summary>Opciones de la tarea</summary><label for="instance">Instancia registrada</label><input id="instance" value="readiness-test" maxlength="41"><label for="series">Serie <span class="hint">opcional; tareas de la misma serie esperan su turno</span></label><input id="series" maxlength="41" placeholder="Ej. analisis-1"><label for="scope">Alcance <span class="hint">rutas de archivo, una por línea; vacío genera una ruta</span></label><textarea id="scope" rows="2" placeholder="instances/readiness-test/deliverables/ejemplo.md"></textarea><label for="invariants">Invariantes <span class="hint">uno por línea</span></label><textarea id="invariants" rows="2"></textarea></details>
+        <button type="submit">Crear propuesta <span>↗</span></button></form>
       </section>
       <section class="card"><div class="card-head"><div><span class="step">02 / ACTIVIDAD</span><h2>Tareas</h2><p>Selecciona una tarea para revisar su propuesta.</p></div><span class="count" id="count">0</span></div><div id="tasks" class="tasks"></div></section>
     </div>
