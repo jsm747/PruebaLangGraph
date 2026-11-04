@@ -58,3 +58,5 @@ node tests/browser.cjs
 ```
 
 Ambas pruebas crean datos sintéticos. El primer recorrido valida los temas, la primera prueba, la entrega y la resolución de una mejora. El segundo comprueba la revisión de propuestas y los controles existentes.
+
+La viabilidad admite también preguntas de descubrimiento cuando el entregable operativo aún no se puede definir. Esa opción exige un proyecto en el paso de elección de camino; no habilita un proceso simple con criterios pendientes. Las referencias de la conversación se mantienen como notas no verificadas hasta su revisión, sin declararlas conocimiento normativo validado.

@@ -51,3 +51,15 @@ Para Azure se usa cabecera `api-key`, y debes proporcionar el endpoint completo 
 `tests/chat-browser.cjs` prueba el chat en navegador. Para repetirlo sin una cuenta de OpenAI puedes arrancar **solo como prueba** `PYTHONPATH=. APF_DATA_DIR=/tmp/apf-chat-test .venv/bin/python tests/serve_chat_fixture.py`; ese servidor escucha en 8126 y sustituye las respuestas HTTP del proveedor por datos de prueba. Apunta `APF_TEST_URL` a ese servidor al ejecutar Playwright. No confundir ese fixture con una conexión real.
 
 La conexión real permanece pendiente de introducir el secreto de OpenAI en tu Codespace. No se han enviado peticiones reales a OpenAI durante la implementación.
+
+## Referencias y validación de la conversación
+
+El Builder carga además la rúbrica de viabilidad y las distinciones de madurez del framework. L0 de un proyecto significa una idea con preguntas comprobables para la siguiente etapa; L0 de un proceso es un techo de autonomía con decisión humana por caso. Ninguno permite operar sin verificación. Si faltan reglas operativas, se puede confirmar viabilidad sobre preguntas de descubrimiento; la selección de camino debe llevar después a un proyecto.
+
+Una referencia aportada en la entrevista (por ejemplo, artículo 6 y anexo III del AI Act) se conserva como fuente propuesta, sin afirmar que el sistema la ha consultado o que cubre todos los supuestos. Las notas se muestran como pendientes de verificar y se exportan separadas de los registros normativos. No sustituyen un análisis del texto aplicable.
+
+Para OpenAI y Azure, el chat solicita por defecto **Structured Outputs** con el esquema de los campos del tema, usando `null` para los datos desconocidos y una lista de notas. En un servicio que no admita esa función se puede configurar `APF_LLM_STRUCTURED_OUTPUTS=0`: se conserva la validación local y no se hace ningún reintento automático o cambio silencioso de modo.
+
+El adaptador admite normalizar listas de texto y estructuras de fuentes de servicios compatibles. La información adicional del dominio se guarda como nota sin verificar, sin modificar el estado ni confirmar decisiones. Si un error de formato impide incorporar la respuesta, se guarda el mensaje del propietario y un código de diagnóstico en la historia. El aviso no significa que la aportación del propietario esté fuera de tema; se conservan los tokens y costes que haya informado el proveedor. Los errores operativos anteriores no se reenvían al modelo como si fueran razonamiento del Builder.
+
+La regresión incluye la referencia normativa de la captura del usuario, representada con respuestas de proveedor controladas. No se ha recuperado la salida JSON original de su Codespace ni se ha hecho una llamada real con su clave.

@@ -10,7 +10,11 @@ import uvicorn
 
 def fake_response(url, *, json: dict, headers, timeout):
     user=[m['content'] for m in json['messages'] if m['role']=='user'][-1]
-    if 'Se llama' in user:
+    if 'artículo 6' in user:
+        reference='Capítulo III, Sección 1, artículo 6, junto con el anexo III'
+        answers={'sources':[{'reference':reference}],'legal_reference':reference}
+        question='Registro esa referencia como pendiente de contrastar. ¿Qué debería contener la ficha de clasificación de cada caso?'
+    elif 'Se llama' in user:
         answers={'name':'Formación','owner':'Persona demo'}
         question='He preparado el encuadre. Revisa el resumen y confirma el tema.'
     else:

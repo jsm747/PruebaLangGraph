@@ -63,6 +63,58 @@ class ChatTests(unittest.TestCase):
                 self.assertEqual(s['status'],'configuring')
                 self.assertEqual(c.post('/api/builder/'+s['id']+'/confirm',json={'revision':s['revision']}).status_code,409)
 
+    def test_ai_act_reference_is_retained_as_unverified_source(self):
+        reference='Capítulo III, Sección 1, artículo 6, junto con el anexo III'
+        output={'answers':{'sources':[{'reference':reference}], 'legal_reference':reference},
+                'question':'Registro esa referencia como pendiente de contrastar. ¿Qué debería contener la ficha de clasificación de cada caso?'}
+        response=httpx.Response(200,request=httpx.Request('POST','https://api.openai.com/v1/chat/completions'),json={
+            'choices':[{'message':{'content':json.dumps(output)}}], 'usage':{'prompt_tokens':100,'completion_tokens':50}})
+        with patch('app.llm.httpx.post',return_value=response) as call:
+            with TestClient(app) as c:
+                s=self.start(c)
+                s=c.post('/api/builder/'+s['id']+'/answer',json={'revision':0,'answers':s['example']}).json()
+                s=c.post('/api/builder/'+s['id']+'/confirm',json={'revision':s['revision']}).json()
+                user_text='Sí, las reglas están en el reglamento europeo '+reference+'.'
+                s=self.chat(c,s,user_text)
+                self.assertEqual(s['topic']['id'],'viability')
+                self.assertIn(reference,s['candidate']['sources'])
+                self.assertNotIn('legal_reference',s['candidate'])
+                self.assertFalse(s['draft'])
+                self.assertTrue(any(n['verification']=='unverified' and reference in n['text'] for n in s['notes']))
+                self.assertIn('pendiente de contrastar',s['history'][-1]['text'])
+                self.assertFalse(any('no respeta el tema' in h.get('text','') for h in s['history']))
+                schema=call.call_args.kwargs['json']['response_format']
+                self.assertEqual(schema['type'],'json_schema')
+                self.assertTrue(schema['json_schema']['strict'])
+                system=call.call_args.kwargs['json']['messages'][0]['content']
+                self.assertIn('madurez L0 de proyecto = idea',system)
+                self.assertIn('techo L0 de proceso = agentes preparan',system)
+                self.assertIn('Ninguna significa sin verificación',system)
+                self.assertIn('no la rechaces por no ser un criterio',system)
+                saved=c.get('/api/builder/'+s['id']).json()
+                self.assertEqual(saved['notes'],s['notes'])
+
+    def test_structured_output_nulls_preserve_known_answers(self):
+        with patch('app.llm.httpx.post',side_effect=[self.response({'purpose':'Revisar cursos'}),
+                self.response({'name':'Formación','purpose':None,'owner':None,'pain':None})]):
+            with TestClient(app) as c:
+                s=self.chat(c,self.start(c),'Quiero revisar cursos.')
+                s=self.chat(c,s,'El proceso se llama Formación.')
+                self.assertEqual(s['candidate']['purpose'],'Revisar cursos')
+                self.assertNotIn('owner',s['candidate'])
+                self.assertFalse(s['draft'])
+
+    def test_format_error_preserves_measured_cost_and_user_message(self):
+        with patch.dict(os.environ,{'APF_LLM_INPUT_USD_PER_MILLION':'2','APF_LLM_OUTPUT_USD_PER_MILLION':'4'}),patch('app.llm.httpx.post',return_value=self.response({'owner':123})):
+            with TestClient(app) as c:
+                s=self.chat(c,self.start(c),'Aportación que debe conservarse.')
+                self.assertTrue(s['errors'])
+                self.assertTrue(s['model_advice']['cost_known'])
+                self.assertAlmostEqual(s['model_advice']['cost_usd'],0.0004)
+                self.assertEqual(s['model_advice']['diagnostics'],['invalid_field_type'])
+                self.assertTrue(any(h.get('text')=='Aportación que debe conservarse.' for h in s['history']))
+                self.assertFalse(s['confirmed'])
+
     def test_timeout_is_recorded_without_automatic_retry(self):
         with patch('app.llm.httpx.post',side_effect=httpx.ReadTimeout('private-detail-that-must-not-leak')) as call:
             with TestClient(app) as c:

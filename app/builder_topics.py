@@ -4,7 +4,8 @@ from datetime import date, timedelta
 TOPICS = [
  {"id":"frame", "title":"0 · Entender tu trabajo", "question":"Cuéntame para qué sirve este trabajo, qué falla hoy y quién es responsable del resultado.", "fields":[
   ("name","Nombre del proceso","text"),("purpose","Qué resultado buscas","textarea"),("pain","Qué falla o cuesta hoy","textarea"),("owner","Propietario del proceso (persona)","text")]},
- {"id":"viability", "title":"1 · Comprobar viabilidad", "question":"¿Cómo sabremos que un resultado es correcto? Define al menos tres criterios comprobables y las fuentes que se pueden utilizar.", "fields":[
+ {"id":"viability", "title":"1 · Comprobar viabilidad", "question":"¿Qué resultado debería entregarse y con qué evidencias se comprobaría? Si aún hay que investigar cómo definirlo, podemos formular las preguntas de un proyecto de descubrimiento.", "optional_fields":["basis","discovery_questions"], "fields":[
+  ("basis","Base de la viabilidad","basis"),("discovery_questions","Preguntas que debe resolver el proyecto de descubrimiento","textarea"),
   ("criteria","Criterios verificables, uno por línea","textarea"),("representation","Forma comparable del entregable","text"),("sources","Fuentes autorizadas para la prueba","textarea"),("invariant","Comprobación ejecutable del prototipo","invariant"),("go","¿Continuamos?","go"),("reason","Razón de la decisión de viabilidad","textarea")]},
  {"id":"profile", "title":"1b · Perfil piloto", "question":"Delimitemos el piloto: datos sintéticos, decisión humana L0, fecha de fin y controles pendientes. Nombra a la persona que revisará la configuración.", "fields":[
   ("pilot_end","Fin del piloto","date"),("scope","Volumen y personas de la prueba","textarea"),("reviewer","Persona que revisa la configuración","text"),("deferred","Controles aplazados y sus limitaciones","textarea")]},
@@ -25,7 +26,7 @@ TOPICS = [
 
 EXAMPLES = {
  "frame":{"name":"Revisión de solicitudes de formación", "purpose":"Preparar una propuesta sobre solicitudes sintéticas de cursos internos.", "pain":"La revisión manual exige comprobar siempre los mismos campos.", "owner":"Responsable de formación (demo)"},
- "viability":{"criteria":"Cada propuesta identifica el curso y el solicitante sintético.\nCada propuesta cita al menos una regla.\nCada propuesta queda pendiente de decisión humana.", "representation":"Markdown con campos y reglas identificables", "sources":"Catálogo y solicitudes ficticias preparados para la prueba.", "invariant":"required-fields", "go":"go", "reason":"Podemos comparar los campos y conservar la decisión humana."},
+ "viability":{"basis":"criteria", "discovery_questions":"", "criteria":"Cada propuesta identifica el curso y el solicitante sintético.\nCada propuesta cita al menos una regla.\nCada propuesta queda pendiente de decisión humana.", "representation":"Markdown con campos y reglas identificables", "sources":"Catálogo y solicitudes ficticias preparados para la prueba.", "invariant":"required-fields", "go":"go", "reason":"Podemos comparar los campos y conservar la decisión humana."},
  "profile":{"pilot_end":"2027-01-31", "scope":"Un propietario local y cinco solicitudes sintéticas.", "reviewer":"Revisor del framework (demo)", "deferred":"Identidad corporativa, segregación real, avisos y límites económicos completos pendientes."},
  "shape":{"path":"simple-process", "complexity":"no", "reason":"Trabajo recurrente con reglas explícitas, un equipo y sin efectos externos."},
  "rules":{"case_types":"Solicitud de curso interno con identificador, curso y motivo.", "rules":"R1: Si faltan el curso o el motivo, proponer completar los datos.\nR2: Si los campos están presentes, preparar una recomendación para revisión.\nF1: No comunicar ni ejecutar decisiones fuera de la plataforma.", "mandatory_human":"Todos los casos del piloto son L0 y requieren decisión humana.", "exceptions":"El propietario resuelve los casos no cubiertos y registra su motivo."},
@@ -44,6 +45,10 @@ def validate(topic, answers, confirmed):
     for key, label, kind in topic["fields"]:
         if topic['id']=='viability' and answers.get('go')=='no-go' and key not in ('go','reason'):
             continue
+        if key in topic.get('optional_fields',[]) and not answers.get(key):
+            continue
+        if topic['id']=='viability' and answers.get('basis','criteria')=='discovery' and key=='criteria':
+            continue
         if not isinstance(answers.get(key), str) or not answers[key].strip():
             errors.append(f"Falta: {label}.")
         elif len(answers[key]) > 6000:
@@ -54,7 +59,12 @@ def validate(topic, answers, confirmed):
     if tid == "viability":
         if answers["go"] not in ("go","no-go"):
             errors.append("Elige go o no-go.")
-        if answers["go"] == "go" and len([x for x in answers["criteria"].splitlines() if x.strip()]) < 3:
+        basis=answers.get('basis') or 'criteria'
+        if basis not in ('criteria','discovery'):
+            errors.append('La base debe ser criterios del resultado o preguntas de descubrimiento.')
+        if answers['go']=='go' and basis=='discovery' and not answers.get('discovery_questions','').strip():
+            errors.append('Indica qué preguntas comprobables debe resolver la siguiente etapa del proyecto.')
+        if answers["go"] == "go" and basis=='criteria' and len([x for x in answers["criteria"].splitlines() if x.strip()]) < 3:
             errors.append("Indica al menos tres criterios comprobables.")
         if answers["go"] == "go" and answers["invariant"] != "required-fields":
             errors.append("La PoC solo implementa la comprobación required-fields; no declara ejecutables otras invariantes.")
@@ -63,6 +73,8 @@ def validate(topic, answers, confirmed):
             errors.append("Elige un camino y una condición de complejidad válidos.")
         elif answers["path"] == "simple-process" and answers["complexity"] == "yes":
             errors.append("Una condición de complejidad exige un proyecto de definición.")
+        if confirmed.get('viability',{}).get('basis')=='discovery' and answers['path']=='simple-process':
+            errors.append('La viabilidad basada en descubrimiento requiere un proyecto, no activar directamente un proceso.')
     if tid == "rules" and not any(line.strip().startswith("R1:") for line in answers["rules"].splitlines()):
         errors.append("Identifica al menos la primera regla como R1: ...")
     for key in ("pilot_end","review_date"):

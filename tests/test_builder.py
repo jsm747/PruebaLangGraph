@@ -63,6 +63,25 @@ class BuilderTests(unittest.TestCase):
             s=self.confirm(c,self.present(c,s,{'go':'no-go','reason':'No podemos verificar el resultado.'}))
             self.assertEqual(s['status'],'no-go')
             self.assertEqual(c.post(f"/api/builder/{s['id']}/first-run").status_code,409)
+    def test_discovery_viability_needs_questions_and_leads_to_project(self):
+        with TestClient(app) as c:
+            s=self.until(c,self.start(c),'viability')
+            data={'basis':'discovery','discovery_questions':'¿Qué reglas faltan y cómo se probarán?',
+                  'representation':'Ficha de proyecto en texto','sources':'Referencia indicada por el propietario, sin verificar',
+                  'invariant':'required-fields','go':'go','reason':'Explorar antes de activar el proceso.'}
+            s=self.present(c,s,data)
+            self.assertFalse(s['errors'],s['errors'])
+            s=self.confirm(c,s)
+            s=self.confirm(c,self.present(c,s))
+            self.assertEqual(s['topic']['id'],'shape')
+            s=self.present(c,s,{'path':'simple-process','complexity':'no','reason':'No debe admitirse todavía'})
+            self.assertTrue(s['errors'])
+            s=self.confirm(c,self.present(c,s,{'path':'project','complexity':'no','reason':'Definir las reglas y sus pruebas'}))
+            self.assertEqual(s['status'],'project-required')
+            brief=next(iter(s['artifacts'].values()))
+            self.assertIn('¿Qué reglas faltan y cómo se probarán?',brief)
+            self.assertIn('no a trabajo sin verificación',brief)
+
     def test_complex_process_requires_definition_project(self):
         with TestClient(app) as c:
             s=self.until(c,self.start(c),'shape')

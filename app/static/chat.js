@@ -29,6 +29,12 @@ function conversation(root,state) {
     log.append(msg);
   }
   section.append(log);
+  if((state.notes||[]).length){
+    const notes=el('details','','source-notes');notes.append(el('summary','Fuentes y notas pendientes de verificar'));
+    notes.append(el('p','Son borradores de la conversación. El sistema no ha consultado ni verificado estos documentos.'));
+    for(const note of state.notes) notes.append(el('p',note.text));
+    section.append(notes);
+  }
   const form=el('form');form.id='chat-form';
   const label=el('label','Tu mensaje');label.htmlFor='chat-input';
   const input=el('textarea');input.id='chat-input';input.maxLength=12000;input.required=true;

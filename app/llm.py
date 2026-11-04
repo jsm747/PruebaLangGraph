@@ -7,9 +7,11 @@ import httpx
 
 
 class ChatError(ValueError):
-    def __init__(self, message, *, uncertain=False):
+    def __init__(self, message, *, uncertain=False, metadata=None, code=''):
         super().__init__(message)
         self.uncertain = uncertain
+        self.metadata = metadata or {}
+        self.code = code
 
 
 @dataclass
@@ -72,10 +74,13 @@ def status():
     return result
 
 
-def complete_json(messages):
+def complete_json(messages, *, schema=None):
     config=ChatConfig.read()
     body={'model':config.model,'messages':messages,'response_format':{'type':'json_object'},
           config.token_parameter:config.max_tokens}
+    if schema is not None and os.environ.get('APF_LLM_STRUCTURED_OUTPUTS','1' if config.provider in ('openai','azure') else '0')=='1':
+        body['response_format']={'type':'json_schema','json_schema':{
+            'name':'apf_builder_turn','strict':True,'schema':schema}}
     if config.effort: body['reasoning_effort']=config.effort
     headers={'api-key':config.key} if config.provider=='azure' else {'Authorization':'Bearer '+config.key}
     try:
