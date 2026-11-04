@@ -2,7 +2,9 @@
 
 La entrada de la aplicación es un **Builder por temas** basado en el guion APF 0.4.1: encuadre, viabilidad, perfil, camino, reglas, personas, economía, conocimiento, generación, primera prueba y entrega. Cada tema requiere una confirmación explícita. La instancia resultante permite operar casos L0 y registrar propuestas de mejora con resolución humana.
 
-Empieza con [el recorrido de la PoC](docs/poc-builder.md). Por defecto es modo **guiado sin modelo** y el ejecutor es simulado. Las fuentes declaradas y los responsables son datos aportados por el usuario local, no verificaciones corporativas. No se afirma preparación completa APF ni equivalencia de todos sus agentes. La [comparación de requisitos](docs/compatibilidad.md) y el [alcance del Builder](docs/poc-builder.md#alcance-comprobado-y-pendiente) detallan lo pendiente.
+Para usarlo como **chatbot con OpenAI**, sigue [la guía de conexión](docs/chat-openai.md). El chat conserva mensajes, hace aclaraciones por tema y espera tu confirmación.
+
+Para el modo sin LLM, empieza con [el recorrido de la PoC](docs/poc-builder.md). Por defecto es modo **guiado sin modelo** y el ejecutor es simulado. Las fuentes declaradas y los responsables son datos aportados por el usuario local, no verificaciones corporativas. No se afirma preparación completa APF ni equivalencia de todos sus agentes. La [comparación de requisitos](docs/compatibilidad.md) y el [alcance del Builder](docs/poc-builder.md#alcance-comprobado-y-pendiente) detallan lo pendiente.
 
 En GitHub Codespaces el archivo `.devcontainer/devcontainer.json` prepara el entorno y arranca la aplicación, con el puerto 8000 reenviado. Mantén el puerto privado. El proceso se ejecuta en el Codespace; GitHub almacena el código. No requiere GitHub Actions.
 

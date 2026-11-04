@@ -10,6 +10,7 @@ from pydantic import BaseModel, Field, field_validator
 from app.service import WorkflowService
 from app.builder import BuilderService
 from app.executor import ExecutionError
+from app.llm import status as llm_status
 
 BASE = Path(__file__).resolve().parent
 
@@ -227,3 +228,19 @@ def improvement_create(sid:str,payload:ImprovementInput,request:Request):
 @app.post('/api/instances/{sid}/improvements/{pid}/ruling')
 def improvement_ruling(sid:str,pid:str,payload:ImprovementRuling,request:Request):
     return builder_call(request.app.state.builder.rule,sid,pid,payload.decision,payload.reason)
+
+
+class ChatMessage(BaseModel):
+    revision: int = Field(ge=0)
+    message: str = Field(min_length=1,max_length=12000)
+
+
+@app.get('/api/llm/status')
+def llm_configuration_status():
+    return llm_status()
+
+
+@app.post('/api/builder/{sid}/chat')
+def builder_chat(sid:str,payload:ChatMessage,request:Request):
+    if not payload.message.strip(): raise HTTPException(422,'Escribe un mensaje.')
+    return builder_call(request.app.state.builder.answer,sid,payload.revision,{},payload.message.strip())

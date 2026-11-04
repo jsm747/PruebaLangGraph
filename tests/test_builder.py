@@ -123,7 +123,7 @@ class BuilderTests(unittest.TestCase):
                 response=httpx.Response(200,request=httpx.Request('POST',config['APF_LLM_URL']),json={
                     'choices':[{'message':{'content':json.dumps({'answers':s['example'],'question':'¿Es correcto este encuadre?'})}}],
                     'usage':{'prompt_tokens':100,'completion_tokens':50}})
-                with patch('app.builder.httpx.post',return_value=response) as call:
+                with patch('app.llm.httpx.post',return_value=response) as call:
                     r=c.post(f"/api/builder/{s['id']}/answer",json={'revision':0,'text':'Quiero revisar solicitudes sintéticas.'})
                     self.assertEqual(r.status_code,200,r.text);s=r.json()
                     self.assertEqual(s['confirmed'],{})

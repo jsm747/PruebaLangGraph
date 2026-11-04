@@ -23,11 +23,15 @@ El Builder usa un grafo LangGraph independiente con una interrupción por turno.
 
 Un `no-go` es un resultado válido. Un proyecto o proceso complejo termina en `project-required` con un encuadre, sin fingir que ya existe un proceso operativo. El ciclo completo del proyecto de definición por Architect, Critic y demás agentes es una entrega posterior.
 
+## Chat con OpenAI
+
+El chat por mensajes está documentado en [chat-openai.md](chat-openai.md). Utiliza un nodo de interpretación LangGraph, memoria de respuestas parciales y confirmación humana.
+
 ## Modo guiado y modo modelo
 
 Por defecto `APF_BUILDER=guided`: no hay un LLM detrás de las preguntas ni se evalúa automáticamente la suficiencia semántica. Se aplica el guion por temas y se validan campos, fechas y condiciones estructurales. Una persona debe juzgar la calidad del contenido.
 
-Opcionalmente, `APF_BUILDER=openai-compatible` activa interpretación de texto con el mandato y el guion reales del Builder. Usa `APF_LLM_URL`, `APF_LLM_MODEL`, `APF_LLM_API_KEY` y las tarifas documentadas en el README. La respuesta del modelo propone campos y preguntas; nunca confirma temas. Los tokens/costes de respuestas válidas se registran en la historia de la sesión, pero todavía no hay presupuesto agregado, recuperación de costes inciertos o conciliación completa para el Builder. No lo actives sin revisar estas limitaciones y el servicio autorizado. No se ha probado contra un proveedor real.
+Opcionalmente, `APF_BUILDER=openai-compatible` activa interpretación de texto con el mandato y el guion reales del Builder. Usa `APF_LLM_URL`, `APF_LLM_MODEL`, `APF_LLM_API_KEY` y las tarifas documentadas en el README. La respuesta del modelo propone campos y preguntas; nunca confirma temas. Los tokens y las estimaciones de coste cuando se han configurado tarifas se registran en la historia de la sesión, pero todavía no hay presupuesto agregado, recuperación de costes inciertos o conciliación completa para el Builder. No lo actives sin revisar estas limitaciones y el servicio autorizado. No se ha probado contra un proveedor real.
 
 El ejecutor de los casos conserva su configuración `APF_EXECUTOR`; permanece simulado por defecto. Una propuesta simulada demuestra el circuito técnico y no resuelve el negocio.
 

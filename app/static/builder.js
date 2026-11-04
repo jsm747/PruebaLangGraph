@@ -20,21 +20,19 @@ if(state.status!=='configuring'){
  documents(root,state);renderHistory(root,state);return;
 }
 const topic=state.topic;root.append(el('h3',topic.title),el('div',topic.question,'bubble'));
+conversation(root,state);
 if(topic.id==='generation')documents(root,state);
 if(topic.id==='first_run'){
  root.append(button('Crear o abrir el caso supervisado',async()=>{const task=await api('/api/builder/'+state.id+'/first-run','POST',{});const input=$('#field-task_id');if(input)input.value=task.id;let link=$('#first-run-link');if(!link){link=el('a','Abrir revisión del caso →','view-link');link.id='first-run-link';root.insertBefore(link,$('#topic-form'));}link.href='/tasks?task_id='+task.id+'&builder='+state.id;link.target='_blank';link.rel='noopener';}));
  root.append(el('p','Abre el caso, revisa su propuesta y apruébala. Regresa después para presentar el identificador y confirmar el resultado.'));
 }
-const form=fieldsForm(topic,state.draft);form.id='topic-form';const submit=el('button',topic.id==='generation'?'He revisado los documentos':'Presentar respuestas');submit.type='submit';form.append(submit);
+const form=fieldsForm(topic,Object.keys(state.draft).length?state.draft:(state.candidate||{}));form.id='topic-form';const submit=el('button',topic.id==='generation'?'He revisado los documentos':'Presentar respuestas');submit.type='submit';form.append(submit);
 form.onsubmit=e=>{e.preventDefault();const answers=readFields(form);act(async()=>{submit.disabled=true;try{current=await api('/api/builder/'+state.id+'/answer','POST',{revision:state.revision,answers});await render(current);}finally{submit.disabled=false;}});};root.append(form);
 if(Object.keys(state.example).length)root.append(button('Cargar ejemplo sintético para este tema',()=>{for(const [key,value]of Object.entries(state.example)){const input=form.elements.namedItem(key);if(input)input.value=value;}},true));
-if(state.mode==='openai-compatible' && topic.fields.length && !['first_run','handover'].includes(topic.id)){
- const text=el('textarea');text.placeholder='O describe el tema con tus palabras para que el Builder proponga los campos...';text.id='builder-message';root.append(el('label','Conversar con el Builder'),text,button('Pedir propuesta al modelo',async()=>{const result=await api('/api/builder/'+state.id+'/answer','POST',{revision:state.revision,text:text.value});current=result;await render(result);}));
-}
-if(state.errors.length){const list=el('ul','','error');state.errors.forEach(e=>list.append(el('li',e)));root.append(list);}
+if(state.errors.length && state.mode==='guided'){const list=el('ul','','error');state.errors.forEach(e=>list.append(el('li',e)));root.append(list);}
 const drafted=Object.keys(state.draft).length>0 || (topic.id==='generation' && state.history.at(-1)?.role==='builder' && !state.errors.length);
 if(drafted){const box=el('div','','draft');box.append(el('h3','Propuesta del tema · pendiente de tu confirmación'));const dl=el('dl');for(const [key,value]of Object.entries(state.draft)){dl.append(el('dt',topic.fields.find(f=>f[0]===key)?.[1]||key),el('dd',value));}box.append(dl,button('Confirmar tema y continuar',async()=>{await api('/api/builder/'+state.id+'/confirm','POST',{revision:state.revision});await show(state.id);}));root.append(box);}
-if(state.model_advice?.question)root.append(el('p',state.model_advice.question));
+if(state.mode==='openai-compatible' && !['generation','first_run','handover'].includes(topic.id)){const fields=el('details');fields.append(el('summary','Ver o corregir los campos del tema'));form.before(fields);fields.append(form);}
 renderHistory(root,state);
 }
 function renderHistory(root,state){const d=el('details');d.append(el('summary','Decisiones y trazabilidad'));for(const decision of state.decisions)d.append(el('p',`${decision.topic} · confirmado en revisión ${decision.revision} · ${decision.at}`));for(const h of state.history.slice(-8))if(h.text)d.append(el('p',`${h.role}: ${h.text}`));root.append(d);}
@@ -45,4 +43,4 @@ const improvement=fieldsForm({fields:[['observation','Observación de la auditor
 const proposals=await api('/api/instances/'+state.id+'/improvements');for(const proposal of proposals){const card=el('div','','proposal-card');card.append(el('h3',proposal.change),el('p',`${proposal.status} · ${proposal.metric} → ${proposal.target} · ${proposal.due}`),el('p',proposal.observation));if(proposal.status==='proposed'){const note=el('input');note.placeholder='Motivo de tu resolución';card.append(note);for(const [decision,label]of [['approved','Aprobar proyecto de cambio'],['closed','Cerrar propuesta']])card.append(button(label,async()=>{await api('/api/instances/'+state.id+'/improvements/'+proposal.id+'/ruling','POST',{decision,reason:note.value});await show(state.id);},true));}else if(proposal.change_project){card.append(el('p',proposal.implementation),button('Abrir encuadre del proyecto de cambio',()=>show(proposal.change_project),true));}root.append(card);}
 }
 $('#new-session').onsubmit=e=>{e.preventDefault();const name=$('#session-name').value;act(async()=>{const state=await api('/api/builder','POST',{name});await show(state.id);});};
-act(async()=>{await sessions();const sid=new URLSearchParams(location.search).get('instance');if(sid)await show(sid);});
+act(async()=>{await loadLlmStatus();$('#model-mode-label').textContent=llmConfig.enabled?'Chat con modelo configurado.':'Modo guiado por defecto, sin llamadas a IA.';await sessions();const sid=new URLSearchParams(location.search).get('instance');if(sid)await show(sid);});
