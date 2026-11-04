@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>APF · Espacio de revisión</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="topbar"><div class="brand"><span class="mark">A</span><span>APF <small> / ESPACIO DE TRABAJO</small></span></div><span class="pill">● &nbsp; Prototipo local</span></header>
+  <main>
+    <section class="intro"><div><div class="eyebrow">FLUJO DE TRABAJO · PILOTO</div><h1>De la tarea a la decisión<span>.</span></h1><p>Prepara una propuesta y revísala antes de incorporarla.</p></div><div class="notice"><b>✳ &nbsp; Entorno de prueba</b><br>El ejecutor está simulado. Utiliza datos sintéticos.</div></section>
+    <div class="layout">
+      <section class="card"><div class="card-head"><div><span class="step">01 / NUEVA TAREA</span><h2>¿En qué trabajamos?</h2><p>Describe un objetivo concreto para preparar una propuesta.</p></div><span class="icon">✳</span></div>
+        <form id="create"><label for="title">Título</label><input id="title" maxlength="120" placeholder="Ej. Preparar una evaluación inicial" required><label for="description">Descripción</label><textarea id="description" maxlength="3000" placeholder="Describe brevemente lo que necesitas..." required></textarea><button type="submit">Crear propuesta <span>↗</span></button></form>
+      </section>
+      <section class="card"><div class="card-head"><div><span class="step">02 / ACTIVIDAD</span><h2>Tareas</h2><p>Selecciona una tarea para revisar su propuesta.</p></div><span class="count" id="count">0</span></div><div id="tasks" class="tasks"></div></section>
+    </div>
+    <section id="detail" class="card detail" hidden></section>
+    <p class="foot">APF PILOT <span>·</span> LangGraph + revisión humana</p>
+  </main>
+  <script src="/static/app.js"></script>
+</body></html>
