@@ -1,8 +1,10 @@
-# APF · prototipo con LangGraph
+# APF · PoC de Builder e instancias con LangGraph
 
-Prototipo local del flujo de trabajo del repositorio `jsm747/jsm747-apf-pilot`: contrato de tarea, instancia registrada, ejecución, propuesta, controles, revisión e integración. LangGraph guarda la ejecución mientras espera la decisión. Por defecto el ejecutor es **simulado** y no llama a ningún modelo.
+La entrada de la aplicación es un **Builder por temas** basado en el guion APF 0.4.1: encuadre, viabilidad, perfil, camino, reglas, personas, economía, conocimiento, generación, primera prueba y entrega. Cada tema requiere una confirmación explícita. La instancia resultante permite operar casos L0 y registrar propuestas de mejora con resolución humana.
 
-Este proyecto aproxima el flujo de un ejecutor del piloto; **no es todavía una réplica completa ni una plataforma corporativa lista para producción**. La comparación de los requisitos está en [docs/compatibilidad.md](docs/compatibilidad.md).
+Empieza con [el recorrido de la PoC](docs/poc-builder.md). Por defecto es modo **guiado sin modelo** y el ejecutor es simulado. Las fuentes declaradas y los responsables son datos aportados por el usuario local, no verificaciones corporativas. No se afirma preparación completa APF ni equivalencia de todos sus agentes. La [comparación de requisitos](docs/compatibilidad.md) y el [alcance del Builder](docs/poc-builder.md#alcance-comprobado-y-pendiente) detallan lo pendiente.
+
+En GitHub Codespaces el archivo `.devcontainer/devcontainer.json` prepara el entorno y arranca la aplicación, con el puerto 8000 reenviado. Mantén el puerto privado. El proceso se ejecuta en el Codespace; GitHub almacena el código. No requiere GitHub Actions.
 
 ## Requisitos y arranque
 
@@ -19,7 +21,7 @@ Abre `http://127.0.0.1:8000` en el navegador de tu propia máquina. La API inter
 
 **Uso exclusivamente local con datos sintéticos:** no hay inicio de sesión ni control de acceso. No expongas el servidor a la red ni introduzcas información personal, de clientes o confidencial. Una aprobación identifica únicamente al usuario local de prueba; no acredita una identidad humana corporativa.
 
-## Flujo
+## Flujo de casos (después del Builder o en `/tasks`)
 
 1. Crea una tarea con contrato y criterios; por defecto pertenece a la instancia sintética `readiness-test` y se habilita al crearla. En la interfaz puedes indicar una serie, invariantes y alcance. La API también admite `next_item` y creación sin habilitar (`auto_arm: false`).
 2. El servicio comprueba que la instancia del registro tenga estado permitido y no haya vencido. Respeta la pausa global, el presupuesto registrado y una tarea activa por serie. Las habilitadas esperan hasta que se libere la serie.
@@ -29,7 +31,11 @@ Abre `http://127.0.0.1:8000` en el navegador de tu propia máquina. La API inter
 
 La copia sintética de `instances/readiness-test/` aporta al ejecutor los documentos y registros de decisión de partida; los artefactos aprobados en SQLite tienen prioridad sobre esa copia. La instancia `readiness-test` y las fechas proceden del piloto original. No deben interpretarse como un registro corporativo real; el registro se copia en [registry/instances.json](registry/instances.json).
 
-## Ejecutor con un modelo compatible, opcional
+## Modelos opcionales
+
+Para conversar con el Builder configura `APF_BUILDER=openai-compatible`, además de las variables `APF_LLM_*` de abajo. Sus propuestas siguen requiriendo tu confirmación. Consulta las limitaciones de presupuesto y validación semántica en [el recorrido](docs/poc-builder.md#modo-guiado-y-modo-modelo).
+
+### Ejecutor con un modelo compatible, opcional
 
 El adaptador `openai-compatible` permite una llamada de chat con respuesta JSON estructurada. Carga el mandato y la habilidad del ejecutor del framework fijado y, si existe, el anexo de la instancia. Solo puede proponer archivos del alcance; el mecanismo ejecuta los controles y espera una aprobación. **No ejecuta herramientas ni reproduce las sesiones completas de Claude Code.**
 
@@ -62,7 +68,7 @@ El segundo comando conserva el banco del original: ejecuta 12 casos del router y
 
 ## Límites de esta versión
 
-- Solo el rol `executor` está conectado al grafo. La copia de `framework/` contiene los demás mandatos y plantillas, pero no los implementa como agentes operativos.
+- El Builder tiene su propio grafo guiado o con interpretación opcional por modelo; del ciclo operativo solo el rol `executor` está conectado al grafo. La copia de `framework/` contiene los demás mandatos y plantillas, pero no los implementa como agentes operativos.
 - No hay aprobación autenticada, aislamiento de credenciales por rol, ejecución segura de herramientas, integración con sistemas corporativos, avisos, ni despliegue distribuido. No hay garantía de ejecución exactamente una vez.
 - La cola, el bloqueo por serie y la recuperación están diseñados para **un único proceso y worker**. La recuperación se hace al iniciar o al reanudar; no hay reconciliador periódico ni las mismas garantías de recuperación que en GitHub Actions.
 - El registro de costes y la telemetría son simplificados; no sustituyen los límites, eventos de herramientas ni la observabilidad de sesiones del piloto original. La simulación registra coste cero por no efectuar llamadas.

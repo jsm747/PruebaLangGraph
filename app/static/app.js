@@ -1,6 +1,6 @@
 const $ = s => document.querySelector(s);
 const labels = {queued:'En cola',armed:'Habilitada · en espera',executing:'En curso',proposed:'Pendiente de revisión',integrated:'Integrada',rejected:'Rechazada',blocked:'Bloqueada','amendment-pending':'Cambio pendiente'};
-let selected = null, paused = false;
+let selected = new URLSearchParams(location.search).get('task_id'), paused = false;
 async function api(path, options = {}) {
   const response = await fetch(path, {headers:{'Content-Type':'application/json'}, ...options});
   const body = await response.json();
@@ -69,4 +69,5 @@ $('#create').addEventListener('submit', async e => {
   catch(error){alert(error.message)} finally {button.disabled=false;}
 });
 $('#control').addEventListener('click', async () => {try {await api('/api/control/' + (paused ? 'resume' : 'pause'), {method:'POST'});await load();} catch(e){alert(e.message)}});
+if(selected){document.querySelector('.layout').style.display='none';document.querySelector('.intro h1').textContent='Revisa la propuesta';const builder=new URLSearchParams(location.search).get('builder');if(builder)document.querySelector('main a').href='/?instance='+encodeURIComponent(builder);}
 load().catch(e => {$('#tasks').textContent = 'No se pudieron cargar las tareas: ' + e.message;});

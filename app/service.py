@@ -128,11 +128,23 @@ class WorkflowService:
                 path = file.relative_to(ROOT).as_posix()
                 if safe_path(path):
                     files[path] = file.read_text(encoding="utf-8")
+        if self.conn.execute("SELECT 1 FROM sqlite_master WHERE name='apf_instance_files'").fetchone():
+            files.update({row["path"]:row["content"] for row in self.conn.execute("SELECT path,content FROM apf_instance_files")})
         files.update({row["path"]: row["content"] for row in self.conn.execute("SELECT path,content FROM artifacts")})
         return files
 
     def _registry_guard(self, instance):
         try:
+            if self.conn.execute("SELECT 1 FROM sqlite_master WHERE name='apf_instances'").fetchone():
+                row=self.conn.execute("SELECT * FROM apf_instances WHERE id=?",(instance,)).fetchone()
+                if row:
+                    config=json.loads(row['config_json'])
+                    today=datetime.now(timezone.utc).date().isoformat()
+                    if row['status'] not in ('supervised-test','active-demo'):
+                        return False, "La instancia no está habilitada."
+                    if config['profile']['pilot_end']<today or config['knowledge']['review_date']<today:
+                        return False, "La instancia tiene su piloto o revisión vencidos."
+                    return True, ""
             registry = json.loads((ROOT / "registry" / "instances.json").read_text(encoding="utf-8"))
             entry = registry.get(instance)
             if not isinstance(entry, dict) or entry.get("status") not in ("active", "pilot", "readiness-test"):
@@ -142,12 +154,15 @@ class WorkflowService:
                 if entry.get(name) and entry[name] < today:
                     return False, f"La instancia '{instance}' tiene {name} vencido ({entry[name]})."
             return True, ""
-        except (OSError, ValueError, TypeError):
+        except (OSError, ValueError, TypeError, KeyError):
             return False, "No se puede comprobar el registro de instancias."
 
     def _budget_guard(self, instance):
         try:
             cap = float(json.loads((ROOT / "config" / "budget.json").read_text(encoding="utf-8"))["period_cap_usd"])
+            if self.conn.execute("SELECT 1 FROM sqlite_master WHERE name='apf_instances'").fetchone():
+                instance_row=self.conn.execute("SELECT config_json FROM apf_instances WHERE id=?",(instance,)).fetchone()
+                if instance_row: cap=float(json.loads(instance_row[0])['economics']['period_usd'])
             month = utcnow()[:7]
             total, unknown = self.conn.execute("SELECT COALESCE(SUM(cost_usd),0), COALESCE(SUM(CASE WHEN cost_known=0 THEN 1 ELSE 0 END),0) FROM telemetry WHERE instance=? AND substr(at,1,7)=?", (instance, month)).fetchone()
             if unknown:
@@ -187,6 +202,9 @@ class WorkflowService:
                 raise ValueError("La siguiente tarea debe ser un identificador válido o END.")
             contract = {"instance": instance, "series": series, "role": "executor", "contract": description,
                         "criteria": criteria, "invariants": invariants, "scope": scope, "next": next_item}
+            if self.conn.execute("SELECT 1 FROM sqlite_master WHERE name='apf_instances'").fetchone():
+                instance_row=self.conn.execute("SELECT version FROM apf_instances WHERE id=?",(instance,)).fetchone()
+                if instance_row: contract['definition_version']=instance_row[0]
             self.conn.execute("INSERT INTO tasks(id,title,contract_json,status) VALUES (?,?,?,?)",
                               (task_id, title, json.dumps(contract, ensure_ascii=False), "queued"))
             self.conn.commit()

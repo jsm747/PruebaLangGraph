@@ -12,7 +12,7 @@ const { chromium } = require('playwright');
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
     page.on('dialog', async dialog => { errors.push(dialog.message()); await dialog.dismiss(); });
-    await page.goto(base, { waitUntil: 'networkidle' });
+    await page.goto(base + '/tasks', { waitUntil: 'networkidle' });
     const title = 'Prueba sintética ' + Array.from(require('crypto').randomBytes(8), n => String.fromCharCode(97 + n % 26)).join('');
     await page.locator('#title').fill(title);
     await page.locator('#description').fill('Preparar un borrador para revisión.');

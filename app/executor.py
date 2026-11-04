@@ -69,7 +69,8 @@ def model_executor(clean, contract, base_files):
         mandate = (ROOT / "framework" / "roles" / "executor.md").read_text(encoding="utf-8")
         skill = (ROOT / "framework" / "skills" / "delivery.md").read_text(encoding="utf-8")
         annex_path = ROOT / "instances" / contract["instance"] / "annexes" / "executor.md"
-        annex = annex_path.read_text(encoding="utf-8") if annex_path.is_file() else ""
+        annex = base_files.get(f"instances/{contract['instance']}/annexes/executor.md", "")
+        if not annex and annex_path.is_file(): annex = annex_path.read_text(encoding="utf-8")
         budget = json.loads((ROOT / "config" / "budget.json").read_text(encoding="utf-8"))
         cap = float(budget["session_caps"]["default"]["max_budget_usd"])
     except (OSError, ValueError, KeyError, TypeError):

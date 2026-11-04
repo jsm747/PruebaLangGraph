@@ -79,6 +79,9 @@ def after_generate(state: TaskState) -> Literal["check", "end"]:
 
 
 def check(state: TaskState) -> dict:
+    if not state.get('proposal','').strip() or any(not content.strip() for content in state.get('files',{}).values()):
+        return {'status':'blocked','checks':{},'blocked_reason':'La propuesta no puede estar vacía.',
+                'events':['Invariante required-fields fallida: propuesta vacía.']}
     try:
         results = check_proposal(state.get("base_files", {}), state["files"], state["delivery_scope"])
     except Exception as exc:
